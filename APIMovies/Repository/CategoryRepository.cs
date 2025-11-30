@@ -12,20 +12,32 @@ namespace APIMovies.Repository
         {
             _context = context;      
         }
+        public async Task<ICollection<Category>> GetCategoriesAsync()
+        {
+            var categories = await _context.Categories
+                .AsNoTracking()
+                .OrderBy(x => x.Id)
+                .ToListAsync();
+            return categories;
+        }
+        public async Task<Category> GetCategoryByIdAsync(int id) //async y el await
+        {
+            return await _context.Categories
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == id); //lambda expressions  
+        }
         public async Task<bool> CategoryExistByIdAsync(int id)
         {
             return await _context.Categories
                 .AsNoTracking()
-                .AnyAsync(C => C.Id == id);
+                .AnyAsync(x => x.Id == id);
         }
-
         public async Task<bool> CategoryExistByNameAsync(string name)
         {
             return await _context.Categories
                 .AsNoTracking()
-                .AnyAsync(C => C.Name == name);
+                .AnyAsync(x => x.Name == name);
         }
-
         public async Task<bool> CreateCategoryAsync(Category category)
         {
             category.CreateDate = DateTime.UtcNow;
@@ -34,7 +46,12 @@ namespace APIMovies.Repository
             return await SaveAsync();
             //SQL INSERT    
         }
-
+        public async Task<bool> UpdateCategoryAsync(Category category)
+        {
+            category.ModifiedDate = DateTime.UtcNow;
+            _context.Categories.Update(category);
+            return await SaveAsync();
+        }
         public async Task<bool> DeleteCategoryAsync(int id)
         {
             var category = await GetCategoryByIdAsync(id); //primero consulta que si exista la categoria
@@ -47,32 +64,9 @@ namespace APIMovies.Repository
             return await SaveAsync();
             //sql Delete from Categories where Id = id
         }
-        public async Task<ICollection<Category>> GetCategoriesAsync()
-        {
-            var categories = await _context.Categories
-                .AsNoTracking()
-                .OrderBy(c => c.Name)
-                .ToListAsync(); 
-            return categories;
-        }
-
-        public async Task<Category> GetCategoryByIdAsync(int id) //async y el await
-        {
-            return await  _context.Categories
-                .AsNoTracking()
-                .FirstOrDefaultAsync(c => c.Id == id); //lambda expressions  
-        }
-
-        public async Task<bool> UpdateCategoryAsync(Category category)
-        {
-            category.ModifiedDate = DateTime.UtcNow;
-            _context.Categories.Update(category);
-            return await SaveAsync();
-        }
         private async Task<bool> SaveAsync()
         {
             return await _context.SaveChangesAsync() >= 0 ? true : false;
         }
-
     }
 }
