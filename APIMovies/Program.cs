@@ -14,6 +14,7 @@ builder.Services.AddAutoMapper(cfg => cfg.AddProfile<Mappers>());
 
 //Dependency Injection for Services
 builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IMovieService, MovieService>();
 
 //Dependency Injection for Repositories
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
